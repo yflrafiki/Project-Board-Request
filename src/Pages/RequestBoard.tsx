@@ -9,8 +9,9 @@ import { Modal } from "../Components/Modal";
 
 export const RequestBoard = () => {
   const { requests } = useRequestContext();
-  const { isAdmin, toggleAdmin } = useAdminContext();
+  const { isAdmin, toggleAdmin, showAdminPrompt, setShowAdminPrompt } = useAdminContext();
   const [showForm, setShowForm] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
 
   const [priorityFilter, setPriorityFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -73,6 +74,19 @@ export const RequestBoard = () => {
     );
   };
 
+  const handleAdminToggle = () => {
+    if (isAdmin) {
+      toggleAdmin(); // Exit admin mode without password
+    } else {
+      setShowAdminPrompt(true); // Show password prompt
+    }
+  };
+
+  const handlePasswordSubmit = () => {
+    toggleAdmin(adminPassword);
+    setAdminPassword("");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 w-full px-4 py-6 sm:px-6 lg:px-12">
       {/* Header Section */}
@@ -81,12 +95,53 @@ export const RequestBoard = () => {
           Submit and manage project requests in one place
         </p>
         <div className="absolute top-[-13px] right-4">
-          <button
-            onClick={toggleAdmin}
-            className="!bg-blue-600 hover:bg-white/30 text-white px-3 py-1 rounded-full text-xs font-medium transition"
-          >
-            {isAdmin ? "Admin Mode" : "User Mode"}
-          </button>
+          {isAdmin ? (
+            <button
+              onClick={handleAdminToggle}
+              className="!bg-blue-600 hover:bg-green-600 text-white px-3 py-1 rounded-full text-xs font-medium transition"
+            >
+              Admin Mode (Exit)
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={handleAdminToggle}
+                className="!bg-blue-600 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium transition"
+              >
+                User Mode (Login)
+              </button>
+              {showAdminPrompt && (
+                <div className="absolute right-0 mt-2 w-64 bg-white text-black p-4 rounded-lg shadow-lg z-10 border border-gray-200">
+                  <p className="text-sm font-medium mb-2">Enter Admin Password:</p>
+                  <input
+                    type="password"
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    className="w-full border rounded px-2 py-1 text-sm mb-2"
+                    placeholder="Password"
+                    onKeyDown={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => {
+                        setShowAdminPrompt(false);
+                        setAdminPassword("");
+                      }}
+                      className="text-sm !bg-blue-600 !text-white hover:text-gray-700"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handlePasswordSubmit}
+                      className="text-sm !bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-600"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 
@@ -162,7 +217,7 @@ export const RequestBoard = () => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="1"
-                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.10M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
             <h3 className="mt-3 text-lg font-medium text-gray-900">

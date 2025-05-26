@@ -9,7 +9,8 @@ export const MockRequests: ProjectRequest[] = [
         priority: "High",
         deadline: "2025-05-20",
         status: "New",
-        name: ""
+        name: "",
+        fileName: ""
     },
     {
         id: "2",
@@ -18,7 +19,8 @@ export const MockRequests: ProjectRequest[] = [
         requestedBy: "Bob",
         priority: "Medium",
         status: "Under Review",
-        name: ""
+        name: "",
+        fileName: ""
     },
 
 ];
