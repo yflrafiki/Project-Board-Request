@@ -3,9 +3,9 @@ import { RequestCard } from "../Components/RequestCard";
 import { RequestForm } from "../Components/RequestForm";
 import { useState } from "react";
 import { FilterBar } from "../Components/FilterBar";
-import type { ProjectRequest } from "../Types";
-import { useAdminContext } from "../Contexts/AdminContext";
 import { Modal } from "../Components/Modal";
+import { useAdminContext } from "../Contexts/AdminContext";
+import type { ProjectRequest } from "../Types";
 
 export const RequestBoard = () => {
   const { requests } = useRequestContext();
@@ -18,7 +18,16 @@ export const RequestBoard = () => {
   const [sortKey, setSortKey] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  // Filtering
+  const handleAdminToggle = () => {
+    if (isAdmin) toggleAdmin();
+    else setShowAdminPrompt(true);
+  };
+
+  const handlePasswordSubmit = () => {
+    toggleAdmin(adminPassword);
+    setAdminPassword("");
+  };
+
   const filtered = requests.filter((r) => {
     const matchesSearch =
       r.projectName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -30,159 +39,77 @@ export const RequestBoard = () => {
     return matchesSearch && matchesPriority && matchesStatus;
   });
 
-  // Sorting
   const sorted = [...filtered].sort((a, b) => {
     if (!sortKey) return 0;
     if (sortKey === "deadline")
       return (a.deadline || "").localeCompare(b.deadline || "");
-    return a[sortKey as keyof ProjectRequest].localeCompare(
-      b[sortKey as keyof ProjectRequest]
-    );
+    return a[sortKey as keyof ProjectRequest].localeCompare(b[sortKey as keyof ProjectRequest]);
   });
 
-  // Admin Metrics
-  const total = requests.length;
-  const newCount = requests.filter((r) => r.status === "New").length;
-  const reviewCount = requests.filter((r) => r.status === "Under Review").length;
-  const inProgress = requests.filter((r) => r.status === "In Progress").length;
-  const completed = requests.filter((r) => r.status === "Completed").length;
-  const highPriority = requests.filter((r) => r.priority === "High").length;
-
-  const MetricCard = ({
-    value,
-    label,
-    color,
-  }: {
-    value: number;
-    label: string;
-    color: string;
-  }) => {
-    const colorClasses: Record<string, string> = {
-      indigo: "bg-indigo-100 text-indigo-700",
-      gray: "bg-gray-100 text-gray-700",
-      yellow: "bg-yellow-100 text-yellow-700",
-      blue: "bg-blue-100 text-blue-700",
-      green: "bg-green-100 text-green-700",
-      red: "bg-red-100 text-red-700",
-    };
-
-    return (
-      <div className={`p-4 rounded-lg text-center ${colorClasses[color]}`}>
-        <div className="text-2xl font-bold">{value}</div>
-        <div className="text-xs font-medium uppercase tracking-wider">{label}</div>
-      </div>
-    );
-  };
-
-  const handleAdminToggle = () => {
-    if (isAdmin) {
-      toggleAdmin(); // Exit admin mode without password
-    } else {
-      setShowAdminPrompt(true); // Show password prompt
-    }
-  };
-
-  const handlePasswordSubmit = () => {
-    toggleAdmin(adminPassword);
-    setAdminPassword("");
-  };
+  const statuses = ["New", "In Progress", "Under Review", "Completed"];
+  const grouped = statuses.map((status) => ({
+    title: status,
+    requests: sorted.filter((r) => r.status === status),
+  }));
 
   return (
     <div className="min-h-screen bg-gray-50 w-full px-4 py-6 sm:px-6 lg:px-12">
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-6 rounded-xl shadow-lg mb-8 relative">
-        <p className="text-lg sm:text-xl font-semibold text-center">
-          Submit and manage project requests in one place
-        </p>
-        <div className="absolute top-[-13px] right-4">
-          {isAdmin ? (
-            <button
-              onClick={handleAdminToggle}
-              className="!bg-blue-600 hover:bg-green-600 text-white px-3 py-1 rounded-full text-xs font-medium transition"
-            >
-              Admin Mode (Exit)
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={handleAdminToggle}
-                className="!bg-blue-600 hover:bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium transition"
-              >
-                User Mode (Login)
-              </button>
-              {showAdminPrompt && (
-                <div className="absolute right-0 mt-2 w-64 bg-white text-black p-4 rounded-lg shadow-lg z-10 border border-gray-200">
-                  <p className="text-sm font-medium mb-2">Enter Admin Password:</p>
-                  <input
-                    type="password"
-                    value={adminPassword}
-                    onChange={(e) => setAdminPassword(e.target.value)}
-                    className="w-full border rounded px-2 py-1 text-sm mb-2"
-                    placeholder="Password"
-                    onKeyDown={(e) => e.key === 'Enter' && handlePasswordSubmit()}
-                  />
-                  <div className="flex justify-end gap-2">
-                    <button
-                      onClick={() => {
-                        setShowAdminPrompt(false);
-                        setAdminPassword("");
-                      }}
-                      className="text-sm !bg-blue-600 !text-white hover:text-gray-700"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handlePasswordSubmit}
-                      className="text-sm !bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-600"
-                    >
-                      Submit
-                    </button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Project Request Board</h1>
+          <p className="text-sm text-gray-500">Track and manage requests visually</p>
+        </div>
+
+        <div className="flex gap-3 items-center">
+          <button
+            onClick={() => setShowForm(true)}
+            className="!bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow"
+          >
+            + Add New Request
+          </button>
+          <button
+            onClick={handleAdminToggle}
+            className="text-sm text-white !bg-blue-600 hover:underline"
+          >
+            {isAdmin ? "Admin Mode (Exit)" : "Login as Admin"}
+          </button>
         </div>
       </div>
 
-      {/* Admin Dashboard */}
-      {isAdmin && (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">
-            Admin Dashboard
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-            <MetricCard value={total} label="Total" color="indigo" />
-            <MetricCard value={newCount} label="New" color="gray" />
-            <MetricCard value={reviewCount} label="Review" color="yellow" />
-            <MetricCard value={inProgress} label="In Progress" color="blue" />
-            <MetricCard value={completed} label="Completed" color="green" />
-            <MetricCard value={highPriority} label="High Priority" color="red" />
+      {showAdminPrompt && (
+        <div className="mb-4 bg-white p-4 rounded-lg shadow border w-full max-w-sm">
+          <p className="text-sm !text-black font-medium mb-2">Enter Admin Password:</p>
+          <input
+            type="password"
+            value={adminPassword}
+            onChange={(e) => setAdminPassword(e.target.value)}
+            className="w-full border rounded !text-black px-2 py-1 text-sm mb-2"
+            placeholder="Password"
+            onKeyDown={(e) => e.key === "Enter" && handlePasswordSubmit()}
+          />
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => {
+                setShowAdminPrompt(false);
+                setAdminPassword("");
+              }}
+              className="text-sm px-3 py-1 !bg-blue-600 text-white rounded hover:bg-gray-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handlePasswordSubmit}
+              className="text-sm px-3 py-1 !bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Submit
+            </button>
           </div>
         </div>
       )}
 
-      {/* Filters + New Button */}
+      {/* Filters */}
       <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-          <h3 className="text-base font-medium text-gray-700">
-            Filter Project Requests
-          </h3>
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 !bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm shadow"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            New Request
-          </button>
-        </div>
         <FilterBar
           onSearch={setSearchQuery}
           onSort={setSortKey}
@@ -191,43 +118,38 @@ export const RequestBoard = () => {
         />
       </div>
 
-      {/* Modal for RequestForm */}
+      {/* Modal */}
       <Modal isOpen={showForm} onClose={() => setShowForm(false)}>
         <RequestForm onClose={() => setShowForm(false)} />
       </Modal>
 
-      {/* Request List */}
-      <section>
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Project Requests</h2>
-        {sorted.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {sorted.map((req) => (
-              <RequestCard key={req.id} request={req} isAdmin={isAdmin} />
-            ))}
+      {/* Responsive Board Layout */}
+      <section className="space-y-6 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {grouped.map(({ title, requests }) => (
+          <div
+            key={title}
+            className="bg-gray-100 border border-gray-200 rounded-xl p-4 flex flex-col max-h-[calc(100vh-250px)] overflow-y-auto"
+          >
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                {title}
+              </h2>
+              <span className="text-xs bg-gray-300 text-gray-800 rounded-full px-2 py-0.5">
+                {requests.length}
+              </span>
+            </div>
+
+            <div className="space-y-4">
+              {requests.length > 0 ? (
+                requests.map((r) => (
+                  <RequestCard key={r.id} request={r} isAdmin={isAdmin} />
+                ))
+              ) : (
+                <div className="text-sm text-gray-500 italic">No requests</div>
+              )}
+            </div>
           </div>
-        ) : (
-          <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-200">
-            <svg
-              className="mx-auto h-10 w-10 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1"
-                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.10M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <h3 className="mt-3 text-lg font-medium text-gray-900">
-              No requests found
-            </h3>
-            <p className="mt-1 text-gray-500 text-sm">
-              Try adjusting your filters or add a new request.
-            </p>
-          </div>
-        )}
+        ))}
       </section>
     </div>
   );

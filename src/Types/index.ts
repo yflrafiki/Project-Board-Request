@@ -4,6 +4,8 @@ export type Priority = "Low" | "Medium" | "High";
 export type Status = "New" | "Under Review" | "In Progress" | "Completed";
 
 export interface ProjectRequest {
+    assignedTo: any;
+    createdAt(createdAt: any): ReactNode;
     fileName: string;
     projectName: ReactNode;
     name: string;
@@ -14,5 +16,6 @@ export interface ProjectRequest {
     deadline?: string;
     status: Status;
     document?: File
+     taggedUsers?: string[]; // NEW
 
 }

@@ -10,27 +10,22 @@ interface AdminContextType {
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAdmin, setIsAdmin] = useState(false); // Default to user view
+  const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminPrompt, setShowAdminPrompt] = useState(false);
   
-  // In a real app, this would be more secure (e.g., API call to verify)
-  const ADMIN_PASSWORD = "admin123"; // Change this to your desired password
+  const ADMIN_PASSWORD = "admin123";
 
   const toggleAdmin = (password?: string) => {
     if (isAdmin) {
-      // If already admin, toggle back to user
       setIsAdmin(false);
       setShowAdminPrompt(false);
     } else {
-      // If not admin, show password prompt
       if (password === ADMIN_PASSWORD) {
         setIsAdmin(true);
         setShowAdminPrompt(false);
       } else if (password === undefined) {
-        // Show prompt if no password provided
         setShowAdminPrompt(true);
       } else {
-        // Wrong password
         alert("Incorrect admin password");
         setShowAdminPrompt(false);
       }
