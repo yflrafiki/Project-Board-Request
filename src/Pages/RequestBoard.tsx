@@ -6,6 +6,7 @@ import { FilterBar } from "../Components/FilterBar";
 import { Modal } from "../Components/Modal";
 import { useAdminContext } from "../Contexts/AdminContext";
 import type { ProjectRequest } from "../Types";
+import { AdminAnalytics } from "../Components/AdminAnalytics";
 
 export const RequestBoard = () => {
   const { requests } = useRequestContext();
@@ -77,6 +78,7 @@ export const RequestBoard = () => {
         </div>
       </div>
 
+      {/* Admin Password Prompt */}
       {showAdminPrompt && (
         <div className="mb-4 bg-white p-4 rounded-lg shadow border w-full max-w-sm">
           <p className="text-sm !text-black font-medium mb-2">Enter Admin Password:</p>
@@ -108,6 +110,9 @@ export const RequestBoard = () => {
         </div>
       )}
 
+      {/* Admin Chart */}
+      {isAdmin && <AdminAnalytics />}
+
       {/* Filters */}
       <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
         <FilterBar
@@ -123,7 +128,7 @@ export const RequestBoard = () => {
         <RequestForm onClose={() => setShowForm(false)} />
       </Modal>
 
-      {/* Responsive Board Layout */}
+      {/* Kanban-style Layout */}
       <section className="space-y-6 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {grouped.map(({ title, requests }) => (
           <div

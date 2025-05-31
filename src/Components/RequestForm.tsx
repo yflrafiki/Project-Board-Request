@@ -166,13 +166,13 @@ export const RequestForm = ({ onClose }: RequestFormProps) => {
 
           {/* Tag Users */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Tag Users (Max 5)</label>
+            <label className="block  text-sm font-semibold text-gray-700 mb-2">Tag Users (Max 5)</label>
             <input
               type="text"
               placeholder="Search users by name or email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full border px-4 py-2 rounded-md mb-3"
+              className="w-full border px-4 py-2 !text-gray-700 rounded-md mb-3"
             />
 
             {taggedUserIds.length > 0 && (
@@ -222,13 +222,13 @@ export const RequestForm = ({ onClose }: RequestFormProps) => {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+            className="px-4 py-2 !bg-blue-600 !text-white rounded-md hover:bg-gray-300"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="px-6 py-2 !bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
             Submit Request
           </button>
