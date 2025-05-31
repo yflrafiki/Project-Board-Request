@@ -26,8 +26,6 @@ export const RequestForm = ({ onClose }: RequestFormProps) => {
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const MAX_TAGS = 5;
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -35,13 +33,9 @@ export const RequestForm = ({ onClose }: RequestFormProps) => {
   };
 
   const handleTagToggle = (userId: string) => {
-    if (taggedUserIds.includes(userId)) {
-      setTaggedUserIds(taggedUserIds.filter((id) => id !== userId));
-    } else if (taggedUserIds.length < MAX_TAGS) {
-      setTaggedUserIds([...taggedUserIds, userId]);
-    } else {
-      toast.error("You can tag up to 5 users only.");
-    }
+    setTaggedUserIds((prev) =>
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
+    );
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,157 +77,129 @@ export const RequestForm = ({ onClose }: RequestFormProps) => {
     onClose();
   };
 
-  const filteredUsers = users
-    .filter((user) =>
-      user.name.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase())
-    )
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="max-h-[calc(100vh-100px)] overflow-y-auto px-2 md:px-4 py-6 md:py-8">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-4xl mx-auto space-y-6"
-      >
-        <h2 className="text-2xl font-bold text-center text-indigo-700">
-          New Project Request
-        </h2>
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-6 rounded-xl shadow-xl w-full max-w-2xl mx-auto max-h-[90vh] overflow-y-auto"
+    >
+      <h2 className="text-xl font-bold mb-6 text-center text-indigo-700">New Project Request</h2>
 
-        <div className="space-y-4">
+      <div className="space-y-4">
+        {/* Project Name */}
+        <input
+          type="text"
+          name="projectName"
+          value={formData.projectName}
+          onChange={handleChange}
+          placeholder="Project Name"
+          required
+          className="w-full border rounded-lg px-4 py-3 text-gray-800 placeholder-gray-400 min-h-[44px]"
+        />
+
+        {/* Description */}
+        <textarea
+          name="description"
+          rows={4}
+          value={formData.description}
+          onChange={handleChange}
+          placeholder="Project Description"
+          required
+          className="w-full border rounded-lg px-4 py-3 text-gray-800 placeholder-gray-400"
+        />
+
+        {/* Requested By */}
+        <input
+          type="text"
+          name="requestedBy"
+          value={formData.requestedBy}
+          onChange={handleChange}
+          placeholder="Requested By"
+          required
+          className="w-full border rounded-lg px-4 py-3 text-gray-800 placeholder-gray-400 min-h-[44px]"
+        />
+
+        {/* Priority */}
+        <select
+          name="priority"
+          value={formData.priority}
+          onChange={handleChange}
+          className="w-full border rounded-lg px-4 py-3 text-gray-800 placeholder-gray-400 min-h-[44px]"
+        >
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+
+        {/* Deadline */}
+        <label className="block text-sm font-medium text-gray-700">Deadline</label>
+        <input
+          type="date"
+          name="deadline"
+          value={formData.deadline}
+          onChange={handleChange}
+          className="w-full border rounded-lg px-4 py-3 text-gray-800 min-h-[44px]"
+        />
+
+        {/* Upload Document */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Attach Document (PDF, DOCX, JPG, PNG)
+          </label>
           <input
-            type="text"
-            name="projectName"
-            value={formData.projectName}
-            onChange={handleChange}
-            placeholder="Project Name"
-            required
-            className="w-full border rounded-lg px-4 py-3 text-gray-800"
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.docx,.png,.jpg,.jpeg"
+            onChange={handleFileChange}
+            className="w-full border rounded-lg px-4 py-2 text-gray-700"
           />
-
-          <textarea
-            name="description"
-            rows={4}
-            value={formData.description}
-            onChange={handleChange}
-            placeholder="Project Description"
-            required
-            className="w-full border rounded-lg px-4 py-3 text-gray-800"
-          />
-
-          <input
-            type="text"
-            name="requestedBy"
-            value={formData.requestedBy}
-            onChange={handleChange}
-            placeholder="Requested By"
-            required
-            className="w-full border rounded-lg px-4 py-3 text-gray-800"
-          />
-
-          <select
-            name="priority"
-            value={formData.priority}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-3 text-gray-800"
-          >
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-          </select>
-
-          <label className="block text-sm font-medium text-gray-700">Deadline</label>
-          <input
-            type="date"
-            name="deadline"
-            value={formData.deadline}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-3 text-gray-800"
-          />
-
-          {/* File Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Attach Document</label>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,.docx,.png,.jpg,.jpeg"
-              onChange={handleFileChange}
-              className="w-full border rounded-lg px-4 py-2 text-gray-700"
-            />
-            {file && <p className="text-sm mt-2 text-green-600">Selected: {file.name}</p>}
-          </div>
-
-          {/* Tag Users */}
-          <div>
-            <label className="block  text-sm font-semibold text-gray-700 mb-2">Tag Users (Max 5)</label>
-            <input
-              type="text"
-              placeholder="Search users by name or email..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full border px-4 py-2 !text-gray-700 rounded-md mb-3"
-            />
-
-            {taggedUserIds.length > 0 && (
-              <div className="mb-4 flex flex-wrap gap-2">
-                {taggedUserIds.map((id) => {
-                  const user = users.find((u) => u.id === id);
-                  if (!user) return null;
-                  const initials = user.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase();
-                  return (
-                    <div
-                      key={id}
-                      className="flex items-center gap-2 bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium"
-                    >
-                      <span className="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">
-                        {initials}
-                      </span>
-                      @{user.name}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            <div className="max-h-40 overflow-y-auto space-y-2 border-t pt-2">
-              {filteredUsers.map((user) => (
-                <label
-                  key={user.id}
-                  className="flex items-center gap-2 text-sm text-gray-700"
-                >
-                  <input
-                    type="checkbox"
-                    checked={taggedUserIds.includes(user.id)}
-                    onChange={() => handleTagToggle(user.id)}
-                  />
-                  <span>{user.name} ({user.email})</span>
-                </label>
-              ))}
-            </div>
-          </div>
+          {file && <p className="text-sm mt-2 text-green-600">Selected: {file.name}</p>}
         </div>
 
-        <div className="mt-6 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 !bg-blue-600 !text-white rounded-md hover:bg-gray-300"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-6 py-2 !bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Submit Request
-          </button>
+        {/* Tag Users */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Tag Users</label>
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full border px-4 py-2 !text-gray-400 rounded-md mb-3 placeholder-gray-400 min-h-[44px]"
+          />
+          <div className="max-h-40 overflow-y-auto space-y-2">
+            {filteredUsers.map((user) => (
+              <label key={user.id} className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={taggedUserIds.includes(user.id)}
+                  onChange={() => handleTagToggle(user.id)}
+                />
+                {user.name}
+              </label>
+            ))}
+          </div>
         </div>
-      </form>
-    </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="mt-6 flex justify-end gap-3 sticky bottom-0 bg-white pt-4">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 !bg-blue-600 rounded-md hover:bg-gray-300"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="px-6 py-2 !bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          Submit Request
+        </button>
+      </div>
+    </form>
   );
 };

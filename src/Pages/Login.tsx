@@ -21,7 +21,7 @@ export const Login = () => {
     const found = users.find(
       (u: any) =>
         (u.name.toLowerCase() === input.toLowerCase() ||
-         u.email.toLowerCase() === input.toLowerCase()) &&
+          u.email.toLowerCase() === input.toLowerCase()) &&
         u.password === password
     );
 
@@ -40,24 +40,24 @@ export const Login = () => {
   };
 
   return (
-    <div className="h-screen w-full flex flex-col lg:flex-row overflow-hidden">
+    <div className="w-screen h-screen flex flex-col lg:flex-row overflow-hidden bg-white">
       <Toaster />
 
-      {/* Welcome Section */}
-      <div className="w-full lg:w-1/2 h-[40vh] lg:h-full bg-gradient-to-tr from-indigo-800 via-purple-700 to-blue-600 text-white flex items-center justify-center p-6">
+      {/* Left - Welcome Section */}
+      <div className="w-full lg:w-1/2 h-1/2 lg:h-full bg-blue-600 text-white flex items-center justify-center p-8">
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold">Welcome Back to Orcta</h1>
-          <p className="text-lg text-indigo-100">Log in to manage your project requests</p>
+          <p className="text-lg text-blue-100">Log in to manage your project requests</p>
         </div>
       </div>
 
-      {/* Login Form Section */}
-      <div className="w-full lg:w-1/2 h-full flex items-center justify-center p-6 bg-white">
+      {/* Right - Login Form */}
+      <div className="w-full lg:w-1/2 h-1/2 lg:h-full flex items-center justify-center p-6 bg-white">
         <div className="w-full max-w-md">
-          <h2 className="text-3xl font-bold text-center text-indigo-600 mb-2">Log In</h2>
+          <h2 className="text-3xl font-bold text-center text-blue-600 mb-2">Log In</h2>
           <p className="text-sm text-center text-gray-500 mb-6">
             Don’t have an account?{" "}
-            <a href="/signup" className="text-indigo-600 hover:underline">Sign up</a>
+            <a href="/signup" className="!text-blue-600 hover:underline">Sign up</a>
           </p>
 
           <div className="space-y-4">
@@ -66,7 +66,7 @@ export const Login = () => {
               placeholder="Enter your name or email"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg text-gray-800"
+              className="w-full p-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400"
               required
             />
 
@@ -76,13 +76,13 @@ export const Login = () => {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg text-gray-800"
+                className="w-full p-3 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-3 top-3 text-sm text-gray-500"
+                className="absolute right-3 top-3 text-sm !bg-blue-600 !text-white-500"
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
@@ -99,7 +99,7 @@ export const Login = () => {
 
             <button
               onClick={handleLogin}
-              className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-medium py-3 rounded-lg hover:from-indigo-700 hover:to-blue-700 transition-all"
+              className="w-full !bg-blue-600 text-white font-medium py-3 rounded-lg hover:bg-blue-700 transition-all"
             >
               Login
             </button>
