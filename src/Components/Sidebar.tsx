@@ -1,22 +1,31 @@
 // src/Components/Sidebar.tsx
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FiSettings, FiTag, FiLogOut, FiMenu } from "react-icons/fi";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { FiSettings, FiTag, FiLogOut, FiMenu, FiHome } from "react-icons/fi";
 
 export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "null");
     setCurrentUser(user);
-  }, []);
+  }, [location]);
 
   const switchAccount = () => {
     localStorage.removeItem("user");
     navigate("/login");
   };
+
+  const navItems = [
+    { label: "Dashboard", to: "/dashboard", icon: <FiHome /> },
+    { label: "Tags", to: "/tags", icon: <FiTag /> },
+    { label: "Switch Account", action: switchAccount, icon: <FiSettings /> },
+    { label: "Logout", action: switchAccount, icon: <FiLogOut /> },
+  ];
 
   return (
     <>
@@ -28,44 +37,65 @@ export const Sidebar = () => {
         <FiMenu />
       </button>
 
-      {/* Sidebar Container */}
+      {/* Sidebar */}
       <aside
-        className={`bg-white w-64 fixed top-0 left-0 h-full shadow-lg transition-transform duration-300 z-40
-        ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+        className={`fixed top-0 left-0 h-full bg-white shadow-lg z-40 transition-all duration-300
+        ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
+        ${isExpanded ? "w-64" : "w-20"}`}
       >
-        <div className="h-full flex flex-col">
-          {/* Logo */}
-          <div className="p-5 border-b border-gray-200">
-            <h2 className="text-lg font-bold text-blue-600">Orcta</h2>
-            {currentUser && (
-              <p className="text-sm text-gray-500">Hello, {currentUser.name}</p>
-            )}
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="p-4 border-b flex justify-between items-center">
+            <div className="text-blue-600 font-bold text-lg">
+              {isExpanded ? "Orcta" : "O"}
+            </div>
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="hidden lg:inline text-gray-500"
+            >
+              <FiMenu />
+            </button>
           </div>
 
+          {/* User Info */}
+          {isExpanded && currentUser && (
+            <div className="px-4 py-2 border-b text-sm text-gray-600">
+              Hello, {currentUser.name}
+            </div>
+          )}
+
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-4 text-sm text-gray-700">
-            <Link to="/dashboard" className="block hover:text-blue-600">🏠 Dashboard</Link>
-            <Link to="/tags" className="block hover:text-blue-600 flex items-center gap-2">
-              <FiTag /> Tags
-            </Link>
-            <button
-              onClick={switchAccount}
-              className="w-full text-left hover:text-blue-600 flex items-center gap-2"
-            >
-              <FiSettings /> Switch Account
-            </button>
-            <button
-              onClick={switchAccount}
-              className="w-full text-left hover:text-red-500 flex items-center gap-2"
-            >
-              <FiLogOut /> Logout
-            </button>
+          <nav className="flex-1 px-2 py-4 space-y-2">
+            {navItems.map((item, i) =>
+              item.to ? (
+                <Link
+                  key={i}
+                  to={item.to}
+                  className="flex items-center gap-3 px-3 py-2 rounded text-sm hover:bg-blue-100"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.icon}
+                  {isExpanded && item.label}
+                </Link>
+              ) : (
+                <button
+                  key={i}
+                  onClick={item.action}
+                  className="flex items-center gap-3 w-full px-3 py-2 rounded text-sm text-left hover:bg-blue-100"
+                >
+                  {item.icon}
+                  {isExpanded && item.label}
+                </button>
+              )
+            )}
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t text-xs text-gray-400 text-center">
-            Orcta © {new Date().getFullYear()}
-          </div>
+          {isExpanded && (
+            <div className="text-xs text-center text-gray-400 py-3 border-t">
+              Orcta © {new Date().getFullYear()}
+            </div>
+          )}
         </div>
       </aside>
     </>
