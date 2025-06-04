@@ -5,15 +5,12 @@ import { useState } from "react";
 import { FilterBar } from "../Components/FilterBar";
 import { Modal } from "../Components/Modal";
 import { useAdminContext } from "../Contexts/AdminContext";
-import { useSidebarContext } from "../Contexts/SidebarContext";
-import { AdminAnalytics } from "../Components/AdminAnalytics";
 import type { ProjectRequest } from "../Types";
+import { AdminAnalytics } from "../Components/AdminAnalytics";
 
 export const RequestBoard = () => {
   const { requests } = useRequestContext();
   const { isAdmin, toggleAdmin, showAdminPrompt, setShowAdminPrompt } = useAdminContext();
-  const { isExpanded } = useSidebarContext(); // sidebar width control
-
   const [showForm, setShowForm] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
 
@@ -47,9 +44,7 @@ export const RequestBoard = () => {
     if (!sortKey) return 0;
     if (sortKey === "deadline")
       return (a.deadline || "").localeCompare(b.deadline || "");
-    return a[sortKey as keyof ProjectRequest].localeCompare(
-      b[sortKey as keyof ProjectRequest]
-    );
+    return a[sortKey as keyof ProjectRequest].localeCompare(b[sortKey as keyof ProjectRequest]);
   });
 
   const statuses = ["New", "In Progress", "Under Review", "Completed"];
@@ -59,14 +54,11 @@ export const RequestBoard = () => {
   }));
 
   return (
-    <div
-      className={`min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-24 xl:px-0 transition-all duration-300 w-full
-  lg:ml-[${isExpanded ? "16rem" : "5rem"}]`}
-    >
+    <div className="min-h-screen bg-gray-50 transition-all duration-300 px-4 py-6 sm:px-6 xl:px-8 w-full">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+          <h1 className="text-2xl lg:text-[1.75rem] font-bold text-gray-800">
             Project Request Board
           </h1>
           <p className="text-sm text-gray-500">Track and manage requests visually</p>
@@ -90,37 +82,39 @@ export const RequestBoard = () => {
 
       {/* Admin Password Prompt */}
       {showAdminPrompt && (
-        <div className="mb-4 bg-white p-4 rounded-lg shadow border w-full max-w-sm">
-          <p className="text-sm !text-black font-medium mb-2">Enter Admin Password:</p>
-          <input
-            type="password"
-            value={adminPassword}
-            onChange={(e) => setAdminPassword(e.target.value)}
-            className="w-full border rounded !text-black px-4 py-2 text-sm mb-2"
-            placeholder="Password"
-            onKeyDown={(e) => e.key === "Enter" && handlePasswordSubmit()}
-          />
-          <div className="flex justify-end gap-2">
-            <button
-              onClick={() => {
-                setShowAdminPrompt(false);
-                setAdminPassword("");
-              }}
-              className="text-sm px-3 py-1 !bg-blue-600 text-white rounded hover:bg-gray-200"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handlePasswordSubmit}
-              className="text-sm px-3 py-1 !bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              Submit
-            </button>
+        <div className="fixed inset-0 bg-black/30 z-50 flex items-start sm:items-center justify-center px-4 sm:px-0 pt-20 sm:pt-0">
+          <div className="bg-white w-full max-w-sm p-5 rounded-xl shadow-md border">
+            <p className="text-sm text-gray-800 font-medium mb-2">Enter Admin Password:</p>
+            <input
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              className="w-full border rounded px-3 py-2 text-sm text-gray-800 placeholder-gray-400 mb-3"
+              placeholder="Password"
+              onKeyDown={(e) => e.key === "Enter" && handlePasswordSubmit()}
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowAdminPrompt(false);
+                  setAdminPassword("");
+                }}
+                className="text-sm px-4 py-2 !text-white !bg-blue-600 rounded hover:bg-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePasswordSubmit}
+                className="text-sm px-4 py-2 !bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Submit
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Admin Analytics */}
+      {/* Admin Chart */}
       {isAdmin && <AdminAnalytics />}
 
       {/* Filters */}
@@ -138,7 +132,7 @@ export const RequestBoard = () => {
         <RequestForm onClose={() => setShowForm(false)} />
       </Modal>
 
-      {/* Kanban Layout */}
+      {/* Kanban-style Layout */}
       <section className="space-y-6 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {grouped.map(({ title, requests }) => (
           <div
