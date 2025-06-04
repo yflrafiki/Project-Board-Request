@@ -60,7 +60,7 @@ export const RequestBoard = () => {
 
   return (
     <div
-      className={`min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-24 xl:px-24 transition-all duration-300 w-full
+      className={`min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-24 xl:px-0 transition-all duration-300 w-full
   lg:ml-[${isExpanded ? "16rem" : "5rem"}]`}
     >
       {/* Header */}

@@ -8,13 +8,20 @@ import { AdminProvider } from "./Contexts/AdminContext";
 import { UserProvider } from "./Contexts/UserContext";
 import { Toaster } from "react-hot-toast";
 import { Sidebar } from "./Components/Sidebar";
-import { SidebarProvider } from "./Contexts/SidebarContext";
+import { SidebarProvider, useSidebarContext } from "./Contexts/SidebarContext";
 
+// 🧩 Layout with dynamic sidebar width
 function AppLayout({ children }: { children: React.ReactNode }) {
+  const { isExpanded } = useSidebarContext();
+
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-gray-50 transition-all duration-300">
       <Sidebar />
-      <main className="flex-1 ml-0 lg:ml-64 bg-gray-50 p-4 sm:p-6">
+      <main
+        className={`flex-1 transition-all duration-300 px-4 py-6 sm:px-6 ${
+          isExpanded ? "lg:ml-64" : "lg:ml-16"
+        }`}
+      >
         {children}
       </main>
     </div>
@@ -24,22 +31,22 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <SidebarProvider>
-    <Router>
-      <AdminProvider>
-        <UserProvider>
-          <RequestProvider>
-            <Toaster position="top-right" />
-            <Routes>
-              <Route path="/" element={<Navigate to="/signup" />} />
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/dashboard" element={<AppLayout><RequestBoard /></AppLayout>} />
-              <Route path="/tags" element={<AppLayout><Tags /></AppLayout>} />
-            </Routes>
-          </RequestProvider>
-        </UserProvider>
-      </AdminProvider>
-    </Router>
+      <Router>
+        <AdminProvider>
+          <UserProvider>
+            <RequestProvider>
+              <Toaster position="top-right" />
+              <Routes>
+                <Route path="/" element={<Navigate to="/signup" />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/dashboard" element={<AppLayout><RequestBoard /></AppLayout>} />
+                <Route path="/tags" element={<AppLayout><Tags /></AppLayout>} />
+              </Routes>
+            </RequestProvider>
+          </UserProvider>
+        </AdminProvider>
+      </Router>
     </SidebarProvider>
   );
 }
