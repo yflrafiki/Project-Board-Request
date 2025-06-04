@@ -39,9 +39,9 @@ export const Sidebar = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full bg-white shadow-lg z-40 transition-all duration-300
-        ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
-        ${isExpanded ? "w-64" : "w-20"}`}
+        className={`fixed top-0 left-0 h-full bg-white shadow-lg z-40 transition-transform duration-300
+          ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0
+          ${isExpanded ? "w-64" : "w-20"}`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}

@@ -5,12 +5,15 @@ import { useState } from "react";
 import { FilterBar } from "../Components/FilterBar";
 import { Modal } from "../Components/Modal";
 import { useAdminContext } from "../Contexts/AdminContext";
-import type { ProjectRequest } from "../Types";
+import { useSidebarContext } from "../Contexts/SidebarContext";
 import { AdminAnalytics } from "../Components/AdminAnalytics";
+import type { ProjectRequest } from "../Types";
 
 export const RequestBoard = () => {
   const { requests } = useRequestContext();
   const { isAdmin, toggleAdmin, showAdminPrompt, setShowAdminPrompt } = useAdminContext();
+  const { isExpanded } = useSidebarContext(); // sidebar width control
+
   const [showForm, setShowForm] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
 
@@ -44,7 +47,9 @@ export const RequestBoard = () => {
     if (!sortKey) return 0;
     if (sortKey === "deadline")
       return (a.deadline || "").localeCompare(b.deadline || "");
-    return a[sortKey as keyof ProjectRequest].localeCompare(b[sortKey as keyof ProjectRequest]);
+    return a[sortKey as keyof ProjectRequest].localeCompare(
+      b[sortKey as keyof ProjectRequest]
+    );
   });
 
   const statuses = ["New", "In Progress", "Under Review", "Completed"];
@@ -54,11 +59,16 @@ export const RequestBoard = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50 w-full px-4 py-6 sm:px-6 lg:px-12">
+    <div
+      className={`min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-24 xl:px-24 transition-all duration-300 w-full
+  lg:ml-[${isExpanded ? "16rem" : "5rem"}]`}
+    >
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Project Request Board</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+            Project Request Board
+          </h1>
           <p className="text-sm text-gray-500">Track and manage requests visually</p>
         </div>
 
@@ -86,7 +96,7 @@ export const RequestBoard = () => {
             type="password"
             value={adminPassword}
             onChange={(e) => setAdminPassword(e.target.value)}
-            className="w-full border rounded !text-black px-2 py-1 text-sm mb-2"
+            className="w-full border rounded !text-black px-4 py-2 text-sm mb-2"
             placeholder="Password"
             onKeyDown={(e) => e.key === "Enter" && handlePasswordSubmit()}
           />
@@ -110,7 +120,7 @@ export const RequestBoard = () => {
         </div>
       )}
 
-      {/* Admin Chart */}
+      {/* Admin Analytics */}
       {isAdmin && <AdminAnalytics />}
 
       {/* Filters */}
@@ -128,7 +138,7 @@ export const RequestBoard = () => {
         <RequestForm onClose={() => setShowForm(false)} />
       </Modal>
 
-      {/* Kanban-style Layout */}
+      {/* Kanban Layout */}
       <section className="space-y-6 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {grouped.map(({ title, requests }) => (
           <div
