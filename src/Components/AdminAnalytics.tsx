@@ -63,7 +63,7 @@ export const AdminAnalytics = ({ requests }: AdminAnalyticsProps) => {
       {/* LEFT: Tables */}
       <div className="flex-1 space-y-6">
         {Object.entries(teams).map(([team, list]) => (
-          <div key={team} className="bg-white shadow border rounded-xl overflow-hidden">
+          <div key={team} className="bg-white shadow border-gray-200 rounded-xl overflow-hidden">
             <div className="bg-blue-50 p-4 border-b flex justify-between items-center">
               <h2 className="font-semibold text-blue-700">{team}</h2>
               <span className="text-sm text-gray-600">{list.length} Tasks</span>
@@ -144,7 +144,7 @@ export const AdminAnalytics = ({ requests }: AdminAnalyticsProps) => {
       {/* RIGHT: Pie + Performance */}
       <div className="w-full xl:w-[300px] space-y-6 flex-shrink-0">
         {/* Chart */}
-        <div className="bg-white rounded-xl shadow border p-4">
+        <div className="bg-white rounded-xl shadow border-gray-200 p-4">
           <h3 className="text-md font-semibold text-gray-800 mb-2">Team Contributions</h3>
           <div className="h-[200px] w-full">
             <Pie data={chartData} />
@@ -163,7 +163,7 @@ export const AdminAnalytics = ({ requests }: AdminAnalyticsProps) => {
         </div>
 
         {/* Personal Stats */}
-        <div className="bg-white rounded-xl shadow border p-4">
+        <div className="bg-white rounded-xl shadow border-gray-200 p-4">
           <h3 className="text-md font-semibold text-gray-800 mb-4">Top Contributors</h3>
           <div className="space-y-4">
             {personalStats.map((u) => (

@@ -18,11 +18,6 @@ export const RequestBoard = () => {
   const [sortKey, setSortKey] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  const handleAdminToggle = () => {
-    if (isAdmin) toggleAdmin();
-    else setShowAdminPrompt(true);
-  };
-
   const handlePasswordSubmit = () => {
     toggleAdmin(adminPassword);
     setAdminPassword("");
@@ -65,12 +60,6 @@ export const RequestBoard = () => {
             className="!bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow"
           >
             + Add New Request
-          </button>
-          <button
-            onClick={handleAdminToggle}
-            className="text-sm text-white !bg-blue-600 hover:underline px-4 py-2 rounded-md"
-          >
-            {isAdmin ? "Admin Mode (Exit)" : "Login as Admin"}
           </button>
         </div>
       </div>
@@ -127,14 +116,14 @@ export const RequestBoard = () => {
           {teams.map((team) => {
             const teamTasks = sorted.filter((task) => task.team === team);
             return (
-              <div key={team} className="bg-gray-900 rounded-xl border px-4 py-4">
-                <div className="flex justify-between mb-2">
+              <div key={team} className="bg-white shadow border-gray-200 rounded-xl border px-4 py-4 overflow-hidden">
+                <div className="bg-blue-50 flex justify-between mb-2">
                   <h2 className="text-blue-700 font-semibold">{team}</h2>
                   <span className="text-sm text-gray-600">{teamTasks.length} Tasks</span>
                 </div>
-                <table className="w-full text-sm">
+                <table className="w-full text-sm text-gray-600 divide-y divide-gray-200 ">
                   <thead>
-                    <tr className="border-b">
+                    <tr className=" border-gray-50">
                       <th className="py-2 text-left">Name</th>
                       <th className="py-2 text-left">Assignee</th>
                       <th className="py-2 text-left">Deadline</th>
@@ -182,6 +171,7 @@ export const RequestBoard = () => {
         </div>
       )}
 
+      {/* Modal Form */}
       <Modal isOpen={showForm} onClose={() => setShowForm(false)}>
         <RequestForm onClose={() => setShowForm(false)} />
       </Modal>

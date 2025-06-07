@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FiSettings, FiTag, FiLogOut, FiMenu, FiHome } from "react-icons/fi";
+import { useAdminContext } from "../Contexts/AdminContext";
 
 export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,13 +10,14 @@ export const Sidebar = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { setShowAdminPrompt } = useAdminContext();
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "null");
     setCurrentUser(user);
   }, [location]);
 
-  const switchAccount = () => {
+  const logout = () => {
     localStorage.removeItem("user");
     navigate("/login");
   };
@@ -23,8 +25,8 @@ export const Sidebar = () => {
   const navItems = [
     { label: "Dashboard", to: "/dashboard", icon: <FiHome /> },
     { label: "Tags", to: "/tags", icon: <FiTag /> },
-    { label: "Switch Account", action: switchAccount, icon: <FiSettings /> },
-    { label: "Logout", action: switchAccount, icon: <FiLogOut /> },
+    { label: "Switch Account", action: () => setShowAdminPrompt(true), icon: <FiSettings /> },
+    { label: "Logout", action: logout, icon: <FiLogOut /> },
   ];
 
   return (

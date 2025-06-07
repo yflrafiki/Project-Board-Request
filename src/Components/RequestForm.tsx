@@ -80,7 +80,7 @@ export const RequestForm = ({ onClose }: { onClose: () => void }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white p-6 rounded-xl shadow-xl w-full max-w-2xl mx-auto max-h-[90vh] overflow-y-auto"
+      className="bg-white p-6 rounded-xl shadow-xl w-full max-w-2xl mx-auto max-h-[90vh] lg:overflow-y-auto lg:[&::-webkit-scrollbar]:hidden"
     >
       <h2 className="text-xl font-bold mb-6 text-center text-indigo-700">
         New Project Request
@@ -125,7 +125,8 @@ export const RequestForm = ({ onClose }: { onClose: () => void }) => {
           <option value="Medium">Medium</option>
           <option value="High">High</option>
         </select>
-         <label className="block text-sm font-medium text-gray-700">Deadline</label>
+
+        <label className="block text-sm font-medium text-gray-700">Deadline</label>
         <input
           type="date"
           name="deadline"
@@ -134,9 +135,9 @@ export const RequestForm = ({ onClose }: { onClose: () => void }) => {
           className="w-full border rounded-lg px-4 py-3 text-gray-800 placeholder-gray-400"
         />
 
-        {/* File */}
+        {/* File Upload */}
         <div>
-           <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Attach Document (PDF, DOCX, JPG, PNG)
           </label>
           <input type="file" onChange={handleFileChange} className="w-full text-sm" />
@@ -146,7 +147,6 @@ export const RequestForm = ({ onClose }: { onClose: () => void }) => {
             </p>
           )}
         </div>
-         
 
         {/* Tags */}
         <div>
