@@ -30,7 +30,7 @@ export const RequestBoard = () => {
 
   const filtered = requests.filter((r) => {
     const matchesSearch =
-      r.projectName?.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.projectName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.requestedBy.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesPriority = priorityFilter ? r.priority === priorityFilter : true;
@@ -41,17 +41,15 @@ export const RequestBoard = () => {
 
   const sorted = [...filtered].sort((a, b) => {
     if (!sortKey) return 0;
-    if (sortKey === "deadline")
-      return (a.deadline || "").localeCompare(b.deadline || "");
-    return a[sortKey as keyof ProjectRequest].toString().localeCompare(
-      b[sortKey as keyof ProjectRequest].toString()
-    );
+    return (a[sortKey as keyof ProjectRequest] ?? "")
+      .toString()
+      .localeCompare((b[sortKey as keyof ProjectRequest] ?? "").toString());
   });
 
   const teams = ["Design Team", "Dev Team", "Marketing Team"];
 
   return (
-    <div className="min-h-screen bg-gray-50 transition-all duration-300 px-4 py-6 sm:px-6 xl:px-8 w-full">
+    <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 xl:px-8 w-full">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <div>
@@ -70,7 +68,7 @@ export const RequestBoard = () => {
           </button>
           <button
             onClick={handleAdminToggle}
-            className="text-sm text-white !bg-blue-600 hover:underline"
+            className="text-sm text-white !bg-blue-600 hover:underline px-4 py-2 rounded-md"
           >
             {isAdmin ? "Admin Mode (Exit)" : "Login as Admin"}
           </button>
@@ -79,39 +77,39 @@ export const RequestBoard = () => {
 
       {/* Admin Password Prompt */}
       {showAdminPrompt && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex items-start sm:items-center justify-center px-4 sm:px-0 pt-20 sm:pt-0">
-          <div className="bg-white w-full max-w-sm p-5 rounded-xl shadow-md border">
-            <p className="text-sm text-gray-800 font-medium mb-2">Enter Admin Password:</p>
+        <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg w-full max-w-sm shadow-md border">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Enter Admin Password</h3>
             <input
               type="password"
               value={adminPassword}
               onChange={(e) => setAdminPassword(e.target.value)}
-              className="w-full border rounded px-3 py-2 text-sm text-gray-800 placeholder-gray-400 mb-3"
               placeholder="Password"
+              className="w-full border px-3 py-2 rounded text-sm text-gray-700 mb-3"
               onKeyDown={(e) => e.key === "Enter" && handlePasswordSubmit()}
             />
             <div className="flex justify-end gap-2">
+              <button
+                className="px-3 py-2 rounded text-white !bg-blue-600 hover:bg-blue-700"
+                onClick={handlePasswordSubmit}
+              >
+                Submit
+              </button>
               <button
                 onClick={() => {
                   setShowAdminPrompt(false);
                   setAdminPassword("");
                 }}
-                className="text-sm px-4 py-2 !text-white !bg-blue-600 rounded hover:bg-gray-200"
+                className="px-3 py-2 rounded !bg-blue-600 text-gray-700 border"
               >
                 Cancel
-              </button>
-              <button
-                onClick={handlePasswordSubmit}
-                className="text-sm px-4 py-2 !bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Submit
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* FilterBar: now appears in both modes */}
+      {/* Filter Bar */}
       <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
         <FilterBar
           onSearch={setSearchQuery}
@@ -121,63 +119,69 @@ export const RequestBoard = () => {
         />
       </div>
 
-      {/* Admin View */}
+      {/* Admin or User View */}
       {isAdmin ? (
         <AdminAnalytics requests={sorted} />
       ) : (
-        <>
-          {/* User View: Team-Based Request Sections */}
-          <div className="space-y-6">
-            {teams.map((team) => {
-              const teamTasks = sorted.filter(
-                (task) => task.assignedTo?.team?.toLowerCase() === team.toLowerCase()
-              );
-
-              return (
-                <div key={team} className="border rounded-xl bg-blue-50 shadow px-4 py-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h2 className="text-base font-semibold text-blue-700">{team}</h2>
-                    <span className="text-sm text-gray-700">{teamTasks.length} Tasks</span>
-                  </div>
-
-                  <table className="w-full text-sm text-left">
-                    <thead className="border-b text-gray-700">
-                      <tr>
-                        <th className="py-2 px-3">Task Name</th>
-                        <th className="py-2 px-3">Assignee</th>
-                        <th className="py-2 px-3">Due</th>
-                        <th className="py-2 px-3">Priority</th>
-                        <th className="py-2 px-3">Progress</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {teamTasks.length > 0 ? (
-                        teamTasks.map((task) => (
-                          <tr key={task.id} className="border-t">
-                            <td className="py-2 px-3">{task.projectName}</td>
-                            <td className="py-2 px-3">{task.assignedTo?.name || "Unassigned"}</td>
-                            <td className="py-2 px-3">{task.deadline || "N/A"}</td>
-                            <td className="py-2 px-3">{task.priority}</td>
-                            <td className="py-2 px-3">{task.status}</td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={5} className="text-center italic text-gray-500 py-3">
-                            No tasks
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+        <div className="space-y-6">
+          {teams.map((team) => {
+            const teamTasks = sorted.filter((task) => task.team === team);
+            return (
+              <div key={team} className="bg-gray-900 rounded-xl border px-4 py-4">
+                <div className="flex justify-between mb-2">
+                  <h2 className="text-blue-700 font-semibold">{team}</h2>
+                  <span className="text-sm text-gray-600">{teamTasks.length} Tasks</span>
                 </div>
-              );
-            })}
-          </div>
-        </>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="py-2 text-left">Name</th>
+                      <th className="py-2 text-left">Assignee</th>
+                      <th className="py-2 text-left">Deadline</th>
+                      <th className="py-2 text-left">Priority</th>
+                      <th className="py-2 text-left">Status</th>
+                      <th className="py-2 text-left">Document</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {teamTasks.map((t) => (
+                      <tr key={t.id} className="border-t">
+                        <td className="py-2">{t.projectName}</td>
+                        <td>{t.requestedBy}</td>
+                        <td>{t.deadline || "—"}</td>
+                        <td>{t.priority}</td>
+                        <td>{t.status}</td>
+                        <td>
+                          {t.document ? (
+                            <a
+                              href={t.document}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 underline"
+                            >
+                              {t.fileName || "View"}
+                            </a>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                    {teamTasks.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="text-center italic text-gray-500 py-3">
+                          No tasks
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })}
+        </div>
       )}
 
-      {/* Modal */}
       <Modal isOpen={showForm} onClose={() => setShowForm(false)}>
         <RequestForm onClose={() => setShowForm(false)} />
       </Modal>

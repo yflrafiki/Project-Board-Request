@@ -8,6 +8,7 @@ import {
   Legend,
 } from "chart.js";
 import { useUserContext } from "../Contexts/UserContext";
+import { useRequestContext } from "../Contexts/RequestContext";
 import type { ProjectRequest } from "../Types";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -18,6 +19,7 @@ type AdminAnalyticsProps = {
 
 export const AdminAnalytics = ({ requests }: AdminAnalyticsProps) => {
   const { users } = useUserContext();
+  const { updateRequest } = useRequestContext();
 
   const teams = {
     "Design Team": requests.filter((r) => r.team === "Design Team"),
@@ -75,6 +77,7 @@ export const AdminAnalytics = ({ requests }: AdminAnalyticsProps) => {
                     <th className="px-4 py-3 text-left">Assignee</th>
                     <th className="px-4 py-3 text-left">Due</th>
                     <th className="px-4 py-3 text-left">Priority</th>
+                    <th className="px-4 py-3 text-left">Status</th>
                     <th className="px-4 py-3 text-left">Progress</th>
                   </tr>
                 </thead>
@@ -101,6 +104,20 @@ export const AdminAnalytics = ({ requests }: AdminAnalyticsProps) => {
                         </span>
                       </td>
                       <td className="px-4 py-2">
+                        <select
+                          value={r.status}
+                          onChange={(e) =>
+                            updateRequest({ ...r, status: e.target.value as ProjectRequest["status"] })
+                          }
+                          className="text-sm border border-gray-300 px-2 py-1 rounded text-gray-700 bg-white"
+                        >
+                          <option value="New">New</option>
+                          <option value="In Progress">In Progress</option>
+                          <option value="Under Review">Under Review</option>
+                          <option value="Completed">Completed</option>
+                        </select>
+                      </td>
+                      <td className="px-4 py-2">
                         <div className="w-full bg-gray-100 rounded-full h-2.5">
                           <div
                             className="bg-blue-500 h-2.5 rounded-full"
@@ -112,7 +129,7 @@ export const AdminAnalytics = ({ requests }: AdminAnalyticsProps) => {
                   ))}
                   {list.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="text-center p-4 text-sm text-gray-400 italic">
+                      <td colSpan={6} className="text-center p-4 text-sm text-gray-400 italic">
                         No tasks
                       </td>
                     </tr>
@@ -135,7 +152,10 @@ export const AdminAnalytics = ({ requests }: AdminAnalyticsProps) => {
           <ul className="mt-3 text-sm text-gray-600 space-y-1">
             {Object.entries(teams).map(([team, arr]) => (
               <li key={team} className="flex items-center gap-2">
-                <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: teamColors[team] }} />
+                <span
+                  className="inline-block w-3 h-3 rounded-full"
+                  style={{ backgroundColor: teamColors[team] }}
+                />
                 {team}: {arr.length} Projects
               </li>
             ))}

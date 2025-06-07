@@ -1,12 +1,21 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 import type { ProjectRequest, Status } from "../Types";
 import { MockRequests } from "../Data/MockRequests";
 import toast from "react-hot-toast";
+
+// Status to progress mapping
+const statusToProgress: Record<Status, number> = {
+  New: 0,
+  "Under Review": 25,
+  "In Progress": 60,
+  Completed: 100,
+};
 
 interface RequestContextType {
   requests: ProjectRequest[];
   addRequest: (req: ProjectRequest) => void;
   updateStatus: (id: string) => void;
+  updateRequest: (updatedRequest: ProjectRequest) => void;
 }
 
 const RequestContext = createContext<RequestContextType | undefined>(undefined);
@@ -17,29 +26,55 @@ export const RequestProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return stored ? JSON.parse(stored) : MockRequests;
   });
 
+  // Add a new request
   const addRequest = (req: ProjectRequest) => {
+    const withProgress = {
+      ...req,
+      progress: statusToProgress[req.status],
+    };
     setRequests((prev) => {
-      const updated = [...prev, req];
-      localStorage.setItem("requests", JSON.stringify(updated)); // ✅ Save to localStorage
+      const updated = [...prev, withProgress];
+      localStorage.setItem("requests", JSON.stringify(updated));
       return updated;
     });
+    toast.success("Request submitted!");
   };
 
+  // Advance status (user flow)
   const updateStatus = (id: string) => {
     setRequests((prev) => {
       const updated = prev.map((req) =>
         req.id === id
-          ? { ...req, status: nextStatus(req.status) }
+          ? {
+              ...req,
+              status: nextStatus(req.status),
+              progress: statusToProgress[nextStatus(req.status)],
+            }
           : req
       );
-      localStorage.setItem("requests", JSON.stringify(updated)); // ✅ Sync updated status
+      localStorage.setItem("requests", JSON.stringify(updated));
       return updated;
     });
     toast.success("Project status updated!");
   };
 
+  // Fully update request (admin flow)
+  const updateRequest = (updatedReq: ProjectRequest) => {
+    const withProgress = {
+      ...updatedReq,
+      progress: statusToProgress[updatedReq.status],
+    };
+
+    setRequests((prev) => {
+      const updated = prev.map((req) => (req.id === withProgress.id ? withProgress : req));
+      localStorage.setItem("requests", JSON.stringify(updated));
+      return updated;
+    });
+    toast.success("Request updated.");
+  };
+
   return (
-    <RequestContext.Provider value={{ requests, addRequest, updateStatus }}>
+    <RequestContext.Provider value={{ requests, addRequest, updateStatus, updateRequest }}>
       {children}
     </RequestContext.Provider>
   );
@@ -51,6 +86,7 @@ export const useRequestContext = () => {
   return context;
 };
 
+// Status flow order
 const statusFlow: Status[] = ["New", "Under Review", "In Progress", "Completed"];
 const nextStatus = (current: Status): Status => {
   const index = statusFlow.indexOf(current);

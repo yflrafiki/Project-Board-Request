@@ -1,3 +1,4 @@
+// src/Components/RequestCard.tsx
 import type { ProjectRequest } from "../Types";
 import { useRequestContext } from "../Contexts/RequestContext";
 import { useUserContext } from "../Contexts/UserContext";
@@ -39,7 +40,9 @@ export const RequestCard: React.FC<{ request: ProjectRequest; isAdmin: boolean }
         <div className="text-sm font-semibold text-indigo-600">
           {request.projectName}
         </div>
-        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[request.status]}`}>
+        <span
+          className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[request.status]}`}
+        >
           {request.status}
         </span>
       </div>
@@ -47,12 +50,13 @@ export const RequestCard: React.FC<{ request: ProjectRequest; isAdmin: boolean }
       {/* Description */}
       <p className="text-sm text-gray-700">{request.description}</p>
 
-      {/* Meta */}
-      <div className="text-sm text-gray-600 space-y-2">
+      {/* Meta Info */}
+      <div className="text-sm text-gray-600 space-y-1">
         <div><strong>Requested by:</strong> {request.requestedBy}</div>
-
-        <div className="flex flex-wrap gap-2 items-center">
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${priorityColors[request.priority]}`}>
+        <div className="flex gap-2 flex-wrap items-center">
+          <span
+            className={`text-xs px-2 py-0.5 rounded-full font-medium ${priorityColors[request.priority]}`}
+          >
             {request.priority} Priority
           </span>
           {request.deadline && (
@@ -61,7 +65,6 @@ export const RequestCard: React.FC<{ request: ProjectRequest; isAdmin: boolean }
             </span>
           )}
         </div>
-
         {/* Document */}
         {request.document && (
           <div>
@@ -79,7 +82,7 @@ export const RequestCard: React.FC<{ request: ProjectRequest; isAdmin: boolean }
 
       {/* Tagged Users */}
       {taggedUsers.length > 0 && (
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap gap-2 items-center">
           <strong className="text-sm text-gray-700">Tagged:</strong>
           {taggedUsers.map((id) => {
             const user = users.find((u) => u.id === id);
@@ -99,11 +102,11 @@ export const RequestCard: React.FC<{ request: ProjectRequest; isAdmin: boolean }
         </div>
       )}
 
-      {/* Admin Button */}
+      {/* Admin Control */}
       {isAdmin && (
         <button
           onClick={() => updateStatus(request.id)}
-          className="mt-3 !bg-blue-600 text-white px-4 py-2 text-sm rounded-md hover:bg-blue-700 transition w-full sm:w-auto"
+          className="mt-3 bg-blue-600 text-white px-4 py-2 text-sm rounded-md hover:bg-blue-700 transition w-full sm:w-auto"
         >
           Advance Status
         </button>
