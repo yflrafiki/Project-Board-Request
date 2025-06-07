@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ProjectRequest, Status } from "../Types";
 import { MockRequests } from "../Data/MockRequests";
 import toast from "react-hot-toast";
@@ -12,23 +12,29 @@ interface RequestContextType {
 const RequestContext = createContext<RequestContextType | undefined>(undefined);
 
 export const RequestProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [requests, setRequests] = useState<ProjectRequest[]>(MockRequests);
+  const [requests, setRequests] = useState<ProjectRequest[]>(() => {
+    const stored = localStorage.getItem("requests");
+    return stored ? JSON.parse(stored) : MockRequests;
+  });
 
   const addRequest = (req: ProjectRequest) => {
-    setRequests((prev) => [...prev, req]);
+    setRequests((prev) => {
+      const updated = [...prev, req];
+      localStorage.setItem("requests", JSON.stringify(updated)); // ✅ Save to localStorage
+      return updated;
+    });
   };
 
   const updateStatus = (id: string) => {
-    setRequests((prev) =>
-      prev.map((req) =>
+    setRequests((prev) => {
+      const updated = prev.map((req) =>
         req.id === id
-          ? {
-              ...req,
-              status: nextStatus(req.status),
-            }
+          ? { ...req, status: nextStatus(req.status) }
           : req
-      )
-    );
+      );
+      localStorage.setItem("requests", JSON.stringify(updated)); // ✅ Sync updated status
+      return updated;
+    });
     toast.success("Project status updated!");
   };
 

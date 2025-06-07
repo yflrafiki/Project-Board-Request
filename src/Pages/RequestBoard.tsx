@@ -1,5 +1,4 @@
 import { useRequestContext } from "../Contexts/RequestContext";
-import { RequestCard } from "../Components/RequestCard";
 import { RequestForm } from "../Components/RequestForm";
 import { useState } from "react";
 import { FilterBar } from "../Components/FilterBar";
@@ -31,7 +30,7 @@ export const RequestBoard = () => {
 
   const filtered = requests.filter((r) => {
     const matchesSearch =
-      r.projectName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.projectName?.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.requestedBy.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesPriority = priorityFilter ? r.priority === priorityFilter : true;
@@ -44,14 +43,12 @@ export const RequestBoard = () => {
     if (!sortKey) return 0;
     if (sortKey === "deadline")
       return (a.deadline || "").localeCompare(b.deadline || "");
-    return a[sortKey as keyof ProjectRequest].localeCompare(b[sortKey as keyof ProjectRequest]);
+    return a[sortKey as keyof ProjectRequest].toString().localeCompare(
+      b[sortKey as keyof ProjectRequest].toString()
+    );
   });
 
-  const statuses = ["New", "In Progress", "Under Review", "Completed"];
-  const grouped = statuses.map((status) => ({
-    title: status,
-    requests: sorted.filter((r) => r.status === status),
-  }));
+  const teams = ["Design Team", "Dev Team", "Marketing Team"];
 
   return (
     <div className="min-h-screen bg-gray-50 transition-all duration-300 px-4 py-6 sm:px-6 xl:px-8 w-full">
@@ -114,10 +111,7 @@ export const RequestBoard = () => {
         </div>
       )}
 
-      {/* Admin Chart */}
-      {isAdmin && <AdminAnalytics />}
-
-      {/* Filters */}
+      {/* FilterBar: now appears in both modes */}
       <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200 mb-6">
         <FilterBar
           onSearch={setSearchQuery}
@@ -127,39 +121,66 @@ export const RequestBoard = () => {
         />
       </div>
 
+      {/* Admin View */}
+      {isAdmin ? (
+        <AdminAnalytics requests={sorted} />
+      ) : (
+        <>
+          {/* User View: Team-Based Request Sections */}
+          <div className="space-y-6">
+            {teams.map((team) => {
+              const teamTasks = sorted.filter(
+                (task) => task.assignedTo?.team?.toLowerCase() === team.toLowerCase()
+              );
+
+              return (
+                <div key={team} className="border rounded-xl bg-blue-50 shadow px-4 py-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <h2 className="text-base font-semibold text-blue-700">{team}</h2>
+                    <span className="text-sm text-gray-700">{teamTasks.length} Tasks</span>
+                  </div>
+
+                  <table className="w-full text-sm text-left">
+                    <thead className="border-b text-gray-700">
+                      <tr>
+                        <th className="py-2 px-3">Task Name</th>
+                        <th className="py-2 px-3">Assignee</th>
+                        <th className="py-2 px-3">Due</th>
+                        <th className="py-2 px-3">Priority</th>
+                        <th className="py-2 px-3">Progress</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {teamTasks.length > 0 ? (
+                        teamTasks.map((task) => (
+                          <tr key={task.id} className="border-t">
+                            <td className="py-2 px-3">{task.projectName}</td>
+                            <td className="py-2 px-3">{task.assignedTo?.name || "Unassigned"}</td>
+                            <td className="py-2 px-3">{task.deadline || "N/A"}</td>
+                            <td className="py-2 px-3">{task.priority}</td>
+                            <td className="py-2 px-3">{task.status}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={5} className="text-center italic text-gray-500 py-3">
+                            No tasks
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
       {/* Modal */}
       <Modal isOpen={showForm} onClose={() => setShowForm(false)}>
         <RequestForm onClose={() => setShowForm(false)} />
       </Modal>
-
-      {/* Kanban-style Layout */}
-      <section className="space-y-6 md:space-y-0 md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {grouped.map(({ title, requests }) => (
-          <div
-            key={title}
-            className="bg-gray-100 border border-gray-200 rounded-xl p-4 flex flex-col max-h-[calc(100vh-250px)] overflow-y-auto"
-          >
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider">
-                {title}
-              </h2>
-              <span className="text-xs bg-gray-300 text-gray-800 rounded-full px-2 py-0.5">
-                {requests.length}
-              </span>
-            </div>
-
-            <div className="space-y-4">
-              {requests.length > 0 ? (
-                requests.map((r) => (
-                  <RequestCard key={r.id} request={r} isAdmin={isAdmin} />
-                ))
-              ) : (
-                <div className="text-sm text-gray-500 italic">No requests</div>
-              )}
-            </div>
-          </div>
-        ))}
-      </section>
     </div>
   );
 };

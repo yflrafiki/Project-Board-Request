@@ -1,205 +1,213 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
+import type { ProjectRequest } from "../Types";
 import { useRequestContext } from "../Contexts/RequestContext";
 import { useUserContext } from "../Contexts/UserContext";
-import type { ProjectRequest, Priority } from "../Types";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuid } from "uuid";
 import toast from "react-hot-toast";
 
-interface RequestFormProps {
-  onClose: () => void;
-}
+const defaultForm: ProjectRequest & { file?: File | null; tags: string[] } = {
+  id: "",
+  projectName: "",
+  description: "",
+  team: "",
+  priority: "Low",
+  requestedBy: "",
+  status: "New",
+  deadline: "",
+  progress: 0,
+  tags: [],
+  file: null,
+};
 
-export const RequestForm = ({ onClose }: RequestFormProps) => {
+const teams = ["Design Team", "Dev Team", "Marketing Team"];
+
+export const RequestForm = () => {
+  const [form, setForm] = useState(defaultForm);
+  const [tagInput, setTagInput] = useState("");
   const { addRequest } = useRequestContext();
-  const { users } = useUserContext();
+  const { currentUser } = useUserContext();
 
-  const [formData, setFormData] = useState({
-    projectName: "",
-    description: "",
-    requestedBy: "",
-    priority: "Medium" as Priority,
-    deadline: "",
-  });
-
-  const [taggedUserIds, setTaggedUserIds] = useState<string[]>([]);
-  const [search, setSearch] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleTagToggle = (userId: string) => {
-    setTaggedUserIds((prev) =>
-      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
-    );
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (selected) {
-      const allowedTypes = [
-        "application/pdf",
-        "image/png",
-        "image/jpeg",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      ];
-      if (!allowedTypes.includes(selected.type)) {
-        toast.error("Only PDF, DOCX, JPG, PNG files are allowed.");
-        return;
-      }
-      setFile(selected);
+    const file = e.target.files?.[0];
+    setForm((prev) => ({ ...prev, file }));
+  };
+
+  const handleAddTag = () => {
+    const trimmed = tagInput.trim();
+    if (trimmed && !form.tags.includes(trimmed)) {
+      setForm((prev) => ({ ...prev, tags: [...prev.tags, trimmed] }));
     }
+    setTagInput("");
+  };
+
+  const handleRemoveTag = (tag: string) => {
+    setForm((prev) => ({ ...prev, tags: prev.tags.filter((t) => t !== tag) }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newRequest: ProjectRequest = {
-      id: uuidv4(),
-      name: formData.projectName,
-      projectName: formData.projectName,
-      description: formData.description,
-      requestedBy: formData.requestedBy,
-      priority: formData.priority,
-      deadline: formData.deadline,
-      status: "New",
-      document: file ? URL.createObjectURL(file) : undefined,
-      fileName: file?.name,
-      taggedUsers: taggedUserIds,
+    if (!form.projectName || !form.description || !form.team) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    const newRequest = {
+      ...form,
+      id: uuid(),
+      requestedBy: currentUser?.name || "Unknown",
     };
 
     addRequest(newRequest);
-    toast.success("Project request submitted!");
-    onClose();
+    setForm(defaultForm);
+    toast.success("Request submitted!");
   };
 
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(search.toLowerCase())
-  );
-
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white p-6 rounded-xl shadow-xl w-full max-w-2xl mx-auto max-h-[90vh] overflow-y-auto"
-    >
-      <h2 className="text-xl font-bold mb-6 text-center text-indigo-700">New Project Request</h2>
-
-      <div className="space-y-4">
-        {/* Project Name */}
-        <input
-          type="text"
-          name="projectName"
-          value={formData.projectName}
-          onChange={handleChange}
-          placeholder="Project Name"
-          required
-          className="w-full border rounded-lg px-4 py-3 text-gray-800 placeholder-gray-400 min-h-[44px]"
-        />
-
-        {/* Description */}
-        <textarea
-          name="description"
-          rows={4}
-          value={formData.description}
-          onChange={handleChange}
-          placeholder="Project Description"
-          required
-          className="w-full border rounded-lg px-4 py-3 text-gray-800 placeholder-gray-400"
-        />
-
-        {/* Requested By */}
-        <input
-          type="text"
-          name="requestedBy"
-          value={formData.requestedBy}
-          onChange={handleChange}
-          placeholder="Requested By"
-          required
-          className="w-full border rounded-lg px-4 py-3 text-gray-800 placeholder-gray-400 min-h-[44px]"
-        />
-
-        {/* Priority */}
-        <select
-          name="priority"
-          value={formData.priority}
-          onChange={handleChange}
-          className="w-full border rounded-lg px-4 py-3 text-gray-800 placeholder-gray-400 min-h-[44px]"
-        >
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
-
-        {/* Deadline */}
-        <label className="block text-sm font-medium text-gray-700">Deadline</label>
-        <input
-          type="date"
-          name="deadline"
-          value={formData.deadline}
-          onChange={handleChange}
-          className="w-full border rounded-lg px-4 py-3 text-gray-800 min-h-[44px]"
-        />
-
-        {/* Upload Document */}
+    <div className="w-full max-w-2xl mx-auto bg-white shadow border rounded-xl p-6 overflow-y-auto max-h-[90vh]">
+      <h2 className="text-lg font-semibold text-blue-700 mb-4">New Project Request</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Attach Document (PDF, DOCX, JPG, PNG)
-          </label>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf,.docx,.png,.jpg,.jpeg"
-            onChange={handleFileChange}
-            className="w-full border rounded-lg px-4 py-2 text-gray-700"
-          />
-          {file && <p className="text-sm mt-2 text-green-600">Selected: {file.name}</p>}
-        </div>
-
-        {/* Tag Users */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Tag Users</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Project Name *</label>
           <input
             type="text"
-            placeholder="Search users..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full border px-4 py-2 !text-gray-400 rounded-md mb-3 placeholder-gray-400 min-h-[44px]"
+            name="projectName"
+            value={form.projectName}
+            onChange={handleChange}
+            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-gray-700"
+            placeholder="e.g. Marketing Website Redesign"
+            required
           />
-          <div className="max-h-40 overflow-y-auto space-y-2">
-            {filteredUsers.map((user) => (
-              <label key={user.id} className="flex items-center gap-2 text-sm text-gray-700">
-                <input
-                  type="checkbox"
-                  checked={taggedUserIds.includes(user.id)}
-                  onChange={() => handleTagToggle(user.id)}
-                />
-                {user.name}
-              </label>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            className="w-full border rounded-lg px-3 py-2 text-sm resize-none h-24 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 text-gray-700"
+            placeholder="Briefly describe the project goals..."
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Select Team *</label>
+          <select
+            name="team"
+            value={form.team}
+            onChange={handleChange}
+            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700  "
+            required
+          >
+            <option value="">-- Choose Team --</option>
+            {teams.map((team) => (
+              <option key={team} value={team}>
+                {team}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+            <select
+              name="priority"
+              value={form.priority}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+            >
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Deadline</label>
+            <input
+              type="date"
+              name="deadline"
+              value={form.deadline}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+            />
+          </div>
+        </div>
+
+        {/* File Upload */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Attachment (optional)</label>
+          <input
+            type="file"
+            onChange={handleFileChange}
+            className="w-full border rounded-lg px-3 py-2 text-sm file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-none file:bg-blue-100 file:text-blue-700 text-gray-700"
+          />
+          {form.file && <p className="text-sm text-gray-600 mt-1">Selected: {form.file.name}</p>}
+        </div>
+
+        {/* Tags Input */}
+        <div>
+          <label className="block  text-sm font-medium text-gray-700 mb-1">Tags</label>
+          <div className="flex gap-2 mb-2">
+            <input
+              type="text"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddTag())}
+              className="flex-1 border rounded-lg px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+              placeholder="Type tag and press Enter"
+            />
+            <button
+              type="button"
+              onClick={handleAddTag}
+              className="px-3 py-2 !bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+            >
+              Add
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {form.tags.map((tag) => (
+              <span
+                key={tag}
+                className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs flex items-center"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTag(tag)}
+                  className="ml-2 text-red-500 hover:text-red-700 font-bold"
+                >
+                  ×
+                </button>
+              </span>
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Action Buttons */}
-      <div className="mt-6 flex justify-end gap-3 sticky bottom-0 bg-white pt-4">
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-4 py-2 !bg-blue-600 rounded-md hover:bg-gray-300"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="px-6 py-2 !bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          Submit Request
-        </button>
-      </div>
-    </form>
+        <div className="flex justify-end gap-3 pt-4">
+          <button
+            type="button"
+            onClick={() => setForm(defaultForm)}
+            className="px-4 py-2 rounded-lg border border-blue-500 text-white font-medium !bg-blue-600 hover:bg-blue-50 transition"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 rounded-lg !bg-blue-600 text-white font-medium !hover:bg-blue-700 transition"
+          >
+            Submit Request
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
