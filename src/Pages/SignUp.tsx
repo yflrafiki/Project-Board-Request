@@ -30,6 +30,16 @@ export const SignUp = () => {
       return;
     }
 
+    const existing = JSON.parse(localStorage.getItem("users") || "[]");
+    const alreadyExists = existing.find(
+      (u: any) => u.email.toLowerCase() === form.email.toLowerCase()
+    );
+
+    if (alreadyExists) {
+      toast.error("User already exists with this email.");
+      return;
+    }
+
     const newUser = {
       id: uuidv4(),
       name: form.name,
@@ -40,17 +50,6 @@ export const SignUp = () => {
 
     // Save to context and localStorage
     registerUser(newUser);
-
-    const existing = JSON.parse(localStorage.getItem("users") || "[]");
-    const alreadyExists = existing.find(
-      (u: any) => u.email.toLowerCase() === newUser.email.toLowerCase()
-    );
-
-    if (alreadyExists) {
-      toast.error("User already exists with this email.");
-      return;
-    }
-
     localStorage.setItem("users", JSON.stringify([...existing, newUser]));
     localStorage.setItem("user", JSON.stringify(newUser));
 

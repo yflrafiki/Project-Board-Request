@@ -121,7 +121,7 @@ export const RequestBoard = () => {
                   <h2 className="text-blue-700 font-semibold">{team}</h2>
                   <span className="text-sm text-gray-600">{teamTasks.length} Tasks</span>
                 </div>
-                <table className="w-full text-sm text-gray-600 divide-y divide-gray-200 ">
+                <table className="w-full text-sm text-gray-600 divide-y divide-gray-200">
                   <thead>
                     <tr className=" border-gray-50">
                       <th className="py-2 text-left">Name</th>
@@ -136,11 +136,17 @@ export const RequestBoard = () => {
                     {teamTasks.map((t) => (
                       <tr key={t.id} className="border-t">
                         <td className="py-2">{t.projectName}</td>
-                        <td>{t.requestedBy}</td>
-                        <td>{t.deadline || "—"}</td>
-                        <td>{t.priority}</td>
-                        <td>{t.status}</td>
-                        <td>
+                        <td className="py-2">
+                          {t.assignedTo?.name ? (
+                            <span>{t.assignedTo.name}</span>
+                          ) : (
+                            <span className="italic text-gray-400">Unassigned</span>
+                          )}
+                        </td>
+                        <td className="py-2">{t.deadline || "—"}</td>
+                        <td className="py-2">{t.priority}</td>
+                        <td className="py-2">{t.status}</td>
+                        <td className="py-2">
                           {t.document ? (
                             <a
                               href={t.document}

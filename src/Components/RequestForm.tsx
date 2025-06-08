@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ProjectRequest } from "../Types";
 import { useRequestContext } from "../Contexts/RequestContext";
 import { useUserContext } from "../Contexts/UserContext";
@@ -23,10 +23,21 @@ export const RequestForm = ({ onClose }: { onClose: () => void }) => {
     progress: 0,
     tags: [],
     file: null,
+    assignees: [],
   });
 
   const [tagInput, setTagInput] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [allUsers, setAllUsers] = useState<{ id: string; name: string }[]>([]);
+  const [suggestions, setSuggestions] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("users");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setAllUsers(parsed);
+    }
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -43,18 +54,44 @@ export const RequestForm = ({ onClose }: { onClose: () => void }) => {
   };
 
   const handleAddTag = () => {
-    const trimmed = tagInput.trim();
-    if (trimmed && !form.tags.includes(trimmed)) {
-      setForm((prev) => ({ ...prev, tags: [...prev.tags, trimmed] }));
+    const trimmed = tagInput.trim().replace(/^@/, "");
+    const matchedUser = allUsers.find(
+      (u) => u.name.toLowerCase() === trimmed.toLowerCase()
+    );
+    if (trimmed && matchedUser && !form.assignees.some((a) => a.id === matchedUser.id)) {
+      setForm((prev) => ({ ...prev, assignees: [...prev.assignees, matchedUser] }));
     }
     setTagInput("");
+    setSuggestions([]);
   };
 
-  const handleRemoveTag = (tag: string) => {
+  const handleRemoveTag = (id: string) => {
     setForm((prev) => ({
       ...prev,
-      tags: prev.tags.filter((t) => t !== tag),
+      assignees: prev.assignees.filter((a) => a.id !== id),
     }));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const value = e.target.value;
+  setTagInput(value);
+
+  if (value.startsWith("@")) {
+    const query = value.slice(1).trim().toLowerCase();
+    setSuggestions(
+      query ? allUsers.filter((u) => u.name.toLowerCase().includes(query)) : []
+    );
+  } else {
+    setSuggestions([]);
+  }
+};
+
+  const handleTagUser = (user: { id: string; name: string }) => {
+    if (!form.assignees.some((a) => a.id === user.id)) {
+      setForm((prev) => ({ ...prev, assignees: [...prev.assignees, user] }));
+    }
+    setTagInput("");
+    setSuggestions([]);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -148,26 +185,39 @@ export const RequestForm = ({ onClose }: { onClose: () => void }) => {
           )}
         </div>
 
-        {/* Tags */}
+        {/* Assignees */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">Tag Users</label>
           <input
             value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddTag())}
-            placeholder="Type tag and press Enter"
+            placeholder="Type @username and press Enter"
             className="w-full border px-4 py-2 text-sm rounded-md mb-2 text-gray-700 placeholder-gray-400"
           />
-          <div className="flex flex-wrap gap-2">
-            {form.tags.map((tag) => (
+          {suggestions.length > 0 && (
+            <div className="border bg-white rounded shadow p-2 max-h-40 overflow-y-auto">
+              {suggestions.map((user) => (
+                <div
+                  key={user.id}
+                  onClick={() => handleTagUser(user)}
+                  className="cursor-pointer p-1 hover:bg-gray-100"
+                >
+                  @{user.name}
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex flex-wrap gap-2 mt-2">
+            {form.assignees.map((user) => (
               <span
-                key={tag}
+                key={user.id}
                 className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs"
               >
-                {tag}{" "}
+                @{user.name}
                 <button
                   type="button"
-                  onClick={() => handleRemoveTag(tag)}
+                  onClick={() => handleRemoveTag(user.id)}
                   className="ml-1 text-red-500 font-bold"
                 >
                   ×

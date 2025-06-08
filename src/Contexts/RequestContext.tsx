@@ -3,7 +3,6 @@ import type { ProjectRequest, Status } from "../Types";
 import { MockRequests } from "../Data/MockRequests";
 import toast from "react-hot-toast";
 
-// Status to progress mapping
 const statusToProgress: Record<Status, number> = {
   New: 0,
   "Under Review": 25,
@@ -26,7 +25,6 @@ export const RequestProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return stored ? JSON.parse(stored) : MockRequests;
   });
 
-  // Add a new request
   const addRequest = (req: ProjectRequest) => {
     const withProgress = {
       ...req,
@@ -40,7 +38,6 @@ export const RequestProvider: React.FC<{ children: React.ReactNode }> = ({ child
     toast.success("Request submitted!");
   };
 
-  // Advance status (user flow)
   const updateStatus = (id: string) => {
     setRequests((prev) => {
       const updated = prev.map((req) =>
@@ -58,7 +55,6 @@ export const RequestProvider: React.FC<{ children: React.ReactNode }> = ({ child
     toast.success("Project status updated!");
   };
 
-  // Fully update request (admin flow)
   const updateRequest = (updatedReq: ProjectRequest) => {
     const withProgress = {
       ...updatedReq,
@@ -86,7 +82,6 @@ export const useRequestContext = () => {
   return context;
 };
 
-// Status flow order
 const statusFlow: Status[] = ["New", "Under Review", "In Progress", "Completed"];
 const nextStatus = (current: Status): Status => {
   const index = statusFlow.indexOf(current);
