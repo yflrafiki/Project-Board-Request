@@ -11,6 +11,11 @@ import { Sidebar } from "./Components/Sidebar";
 import { SidebarProvider, useSidebarContext } from "./Contexts/SidebarContext";
 import { useState } from "react";
 
+// ✅ New pages for teams
+import { DevTeam } from "./Pages/DevTeam";
+import { DesignTeam } from "./Pages/DesignTeam";
+import { MarketingTeam } from "./Pages/MarketingTeam";
+
 // 🧩 Layout with dynamic sidebar width & admin modal
 function AppLayout({ children }: { children: React.ReactNode }) {
   const { isExpanded } = useSidebarContext();
@@ -84,6 +89,11 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/dashboard" element={<AppLayout><RequestBoard /></AppLayout>} />
                 <Route path="/tags" element={<AppLayout><Tags /></AppLayout>} />
+
+                {/* ✅ Team Pages */}
+                <Route path="/teams/dev" element={<AppLayout><DevTeam /></AppLayout>} />
+                <Route path="/teams/design" element={<AppLayout><DesignTeam /></AppLayout>} />
+                <Route path="/teams/marketing" element={<AppLayout><MarketingTeam /></AppLayout>} />
               </Routes>
             </RequestProvider>
           </UserProvider>

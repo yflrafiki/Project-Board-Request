@@ -1,12 +1,21 @@
-// src/Components/Sidebar.tsx
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { FiSettings, FiTag, FiLogOut, FiMenu, FiHome } from "react-icons/fi";
+import {
+  FiSettings,
+  FiTag,
+  FiLogOut,
+  FiMenu,
+  FiHome,
+  FiUsers,
+  FiChevronDown,
+  FiChevronRight,
+} from "react-icons/fi";
 import { useAdminContext } from "../Contexts/AdminContext";
 
 export const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [showTeams, setShowTeams] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,8 +34,18 @@ export const Sidebar = () => {
   const navItems = [
     { label: "Dashboard", to: "/dashboard", icon: <FiHome /> },
     { label: "Tags", to: "/tags", icon: <FiTag /> },
-    { label: "Switch Account", action: () => setShowAdminPrompt(true), icon: <FiSettings /> },
+    {
+      label: "Switch Account",
+      action: () => setShowAdminPrompt(true),
+      icon: <FiSettings />,
+    },
     { label: "Logout", action: logout, icon: <FiLogOut /> },
+  ];
+
+  const teamLinks = [
+    { name: "Dev Team", to: "/teams/dev" },
+    { name: "Design Team", to: "/teams/design" },
+    { name: "Marketing Team", to: "/teams/marketing" },
   ];
 
   return (
@@ -89,6 +108,34 @@ export const Sidebar = () => {
                   {isExpanded && item.label}
                 </button>
               )
+            )}
+
+            {/* Teams Section */}
+            <button
+              onClick={() => setShowTeams(!showTeams)}
+              className="flex items-center gap-3 w-full px-3 py-2 rounded text-sm text-left hover:bg-blue-100"
+            >
+              <FiUsers />
+              {isExpanded && (
+                <>
+                  <span className="flex-1">Teams</span>
+                  {showTeams ? <FiChevronDown /> : <FiChevronRight />}
+                </>
+              )}
+            </button>
+            {showTeams && isExpanded && (
+              <div className="pl-8 space-y-1">
+                {teamLinks.map((team) => (
+                  <Link
+                    key={team.name}
+                    to={team.to}
+                    className="block text-sm text-gray-700 hover:text-blue-600"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {team.name}
+                  </Link>
+                ))}
+              </div>
             )}
           </nav>
 
