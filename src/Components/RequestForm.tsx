@@ -21,7 +21,6 @@ export const RequestForm = ({ onClose }: { onClose: () => void }) => {
     status: "New",
     deadline: "",
     progress: 0,
-    tags: [],
     file: null,
     assignees: [],
   });
@@ -58,8 +57,42 @@ export const RequestForm = ({ onClose }: { onClose: () => void }) => {
     const matchedUser = allUsers.find(
       (u) => u.name.toLowerCase() === trimmed.toLowerCase()
     );
-    if (trimmed && matchedUser && !form.assignees.some((a) => a.id === matchedUser.id)) {
-      setForm((prev) => ({ ...prev, assignees: [...prev.assignees, matchedUser] }));
+
+    if (
+      trimmed &&
+      matchedUser &&
+      !form.assignees.some((a) => a.id === matchedUser.id)
+    ) {
+      setForm((prev) => ({
+        ...prev,
+        assignees: [...prev.assignees, matchedUser],
+      }));
+    }
+
+    setTagInput("");
+    setSuggestions([]);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTagInput(value);
+
+    if (value.startsWith("@")) {
+      const query = value.slice(1).trim().toLowerCase();
+      setSuggestions(
+        query ? allUsers.filter((u) => u.name.toLowerCase().includes(query)) : []
+      );
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleTagUser = (user: { id: string; name: string }) => {
+    if (!form.assignees.some((a) => a.id === user.id)) {
+      setForm((prev) => ({
+        ...prev,
+        assignees: [...prev.assignees, user],
+      }));
     }
     setTagInput("");
     setSuggestions([]);
@@ -70,28 +103,6 @@ export const RequestForm = ({ onClose }: { onClose: () => void }) => {
       ...prev,
       assignees: prev.assignees.filter((a) => a.id !== id),
     }));
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const value = e.target.value;
-  setTagInput(value);
-
-  if (value.startsWith("@")) {
-    const query = value.slice(1).trim().toLowerCase();
-    setSuggestions(
-      query ? allUsers.filter((u) => u.name.toLowerCase().includes(query)) : []
-    );
-  } else {
-    setSuggestions([]);
-  }
-};
-
-  const handleTagUser = (user: { id: string; name: string }) => {
-    if (!form.assignees.some((a) => a.id === user.id)) {
-      setForm((prev) => ({ ...prev, assignees: [...prev.assignees, user] }));
-    }
-    setTagInput("");
-    setSuggestions([]);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -187,7 +198,9 @@ export const RequestForm = ({ onClose }: { onClose: () => void }) => {
 
         {/* Assignees */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Tag Users</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Tag Users
+          </label>
           <input
             value={tagInput}
             onChange={handleInputChange}
@@ -196,7 +209,7 @@ export const RequestForm = ({ onClose }: { onClose: () => void }) => {
             className="w-full border px-4 py-2 text-sm rounded-md mb-2 text-gray-700 placeholder-gray-400"
           />
           {suggestions.length > 0 && (
-            <div className="border bg-white rounded shadow p-2 max-h-40 overflow-y-auto">
+            <div className="border bg-white rounded shadow p-2 max-h-40 overflow-y-auto text-gray-700">
               {suggestions.map((user) => (
                 <div
                   key={user.id}

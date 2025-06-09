@@ -10,6 +10,7 @@ import { AdminAnalytics } from "../Components/AdminAnalytics";
 export const RequestBoard = () => {
   const { requests } = useRequestContext();
   const { isAdmin, toggleAdmin, showAdminPrompt, setShowAdminPrompt } = useAdminContext();
+
   const [showForm, setShowForm] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
 
@@ -116,14 +117,17 @@ export const RequestBoard = () => {
           {teams.map((team) => {
             const teamTasks = sorted.filter((task) => task.team === team);
             return (
-              <div key={team} className="bg-white shadow border-gray-200 rounded-xl border px-4 py-4 overflow-hidden">
+              <div
+                key={team}
+                className="bg-white shadow border-gray-200 rounded-xl border px-4 py-4 overflow-hidden"
+              >
                 <div className="bg-blue-50 flex justify-between mb-2">
                   <h2 className="text-blue-700 font-semibold">{team}</h2>
                   <span className="text-sm text-gray-600">{teamTasks.length} Tasks</span>
                 </div>
                 <table className="w-full text-sm text-gray-600 divide-y divide-gray-200">
                   <thead>
-                    <tr className=" border-gray-50">
+                    <tr className="border-gray-50">
                       <th className="py-2 text-left">Name</th>
                       <th className="py-2 text-left">Assignee</th>
                       <th className="py-2 text-left">Deadline</th>
@@ -137,8 +141,17 @@ export const RequestBoard = () => {
                       <tr key={t.id} className="border-t">
                         <td className="py-2">{t.projectName}</td>
                         <td className="py-2">
-                          {t.assignedTo?.name ? (
-                            <span>{t.assignedTo.name}</span>
+                          {Array.isArray(t.assignees) && t.assignees.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {t.assignees.map((person, idx) => (
+                                <span
+                                  key={idx}
+                                  className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded"
+                                >
+                                  {person.name}
+                                </span>
+                              ))}
+                            </div>
                           ) : (
                             <span className="italic text-gray-400">Unassigned</span>
                           )}
