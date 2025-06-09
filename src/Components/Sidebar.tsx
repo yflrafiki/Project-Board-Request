@@ -53,7 +53,7 @@ export const Sidebar = () => {
       {/* Mobile Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-2 rounded-md shadow"
+        className="lg:hidden fixed top-4 left-8 z-50 bg-blue-600 text-white p-2 rounded-md shadow"
       >
         <FiMenu />
       </button>
