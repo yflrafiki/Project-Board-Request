@@ -30,6 +30,11 @@ export const SignUp = () => {
       return;
     }
 
+    if (form.password.length < 6) {
+    toast.error("Password must be at least 6 characters.");
+    return;
+    }
+
     const existing = JSON.parse(localStorage.getItem("users") || "[]");
     const alreadyExists = existing.find(
       (u: any) => u.email.toLowerCase() === form.email.toLowerCase()

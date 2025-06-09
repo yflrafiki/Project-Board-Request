@@ -92,7 +92,7 @@ export const Sidebar = () => {
                 <Link
                   key={i}
                   to={item.to}
-                  className="flex items-center gap-3 px-3 bg-blue-600 !text-white py-2 rounded text-sm hover:bg-blue-100"
+                  className="flex items-center gap-3 px-3 py-2 rounded text-sm hover:bg-blue-100"
                   onClick={() => setIsOpen(false)}
                 >
                   {item.icon}
@@ -102,7 +102,7 @@ export const Sidebar = () => {
                 <button
                   key={i}
                   onClick={item.action}
-                  className="flex items-center gap-3 !bg-blue-600 !text-white w-full px-3 py-2 rounded text-sm text-left hover:bg-blue-100"
+                  className="flex items-center gap-3 w-full px-3 py-2 rounded text-sm text-left hover:bg-blue-100"
                 >
                   {item.icon}
                   {isExpanded && item.label}
@@ -113,7 +113,7 @@ export const Sidebar = () => {
             {/* Teams Section */}
             <button
               onClick={() => setShowTeams(!showTeams)}
-              className="flex items-center gap-3 w-full px-3 py-2 !bg-blue-600 text-white rounded text-sm text-left hover:bg-blue-100"
+              className="flex items-center gap-3 w-full px-3 py-2 rounded text-sm text-left hover:bg-blue-100"
             >
               <FiUsers />
               {isExpanded && (
