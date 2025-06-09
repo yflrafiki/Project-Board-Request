@@ -52,7 +52,7 @@ export const RequestBoard = () => {
           <h1 className="text-2xl lg:text-[1.75rem] font-bold text-gray-800">
             Project Request Board
           </h1>
-          <p className="text-sm text-gray-500">Track and manage requests visually</p>
+          <p className="text-sm text-gray-500 leading-12">Track and manage requests visually</p>
         </div>
 
         <div className="flex gap-3 items-center">

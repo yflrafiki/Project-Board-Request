@@ -79,6 +79,7 @@ export const AdminAnalytics = ({ requests }: AdminAnalyticsProps) => {
                     <th className="px-4 py-3 text-left">Priority</th>
                     <th className="px-4 py-3 text-left">Status</th>
                     <th className="px-4 py-3 text-left">Progress</th>
+                    <th className="px-4 py-3 text-left">Document</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
@@ -125,11 +126,25 @@ export const AdminAnalytics = ({ requests }: AdminAnalyticsProps) => {
                           />
                         </div>
                       </td>
+                      <td className="px-4 py-2">
+                        {r.document ? (
+                          <a
+                            href={r.document}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 underline"
+                          >
+                            {r.fileName || "View"}
+                          </a>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
                     </tr>
                   ))}
                   {list.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="text-center p-4 text-sm text-gray-400 italic">
+                      <td colSpan={7} className="text-center p-4 text-sm text-gray-400 italic">
                         No tasks
                       </td>
                     </tr>
