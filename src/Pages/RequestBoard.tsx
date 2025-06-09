@@ -125,22 +125,23 @@ export const RequestBoard = () => {
                   <h2 className="text-blue-700 font-semibold">{team}</h2>
                   <span className="text-sm text-gray-600">{teamTasks.length} Tasks</span>
                 </div>
-                <table className="w-full text-sm text-gray-600 divide-y divide-gray-200">
-                  <thead>
-                    <tr className="border-gray-50">
-                      <th className="py-2 text-left">Name</th>
-                      <th className="py-2 text-left">Assignee</th>
-                      <th className="py-2 text-left">Deadline</th>
-                      <th className="py-2 text-left">Priority</th>
-                      <th className="py-2 text-left">Status</th>
-                      <th className="py-2 text-left">Document</th>
+
+                <table className="min-w-full text-sm text-gray-700 divide-y divide-gray-200">
+                  <thead className="bg-gray-100 text-xs font-semibold text-gray-700 uppercase">
+                    <tr>
+                      <th className="px-4 py-3 text-left">Name</th>
+                      <th className="px-4 py-3 text-left">Assignee</th>
+                      <th className="px-4 py-3 text-left">Deadline</th>
+                      <th className="px-4 py-3 text-left">Priority</th>
+                      <th className="px-4 py-3 text-left">Status</th>
+                      <th className="px-4 py-3 text-left">Document</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-gray-100 bg-white">
                     {teamTasks.map((t) => (
-                      <tr key={t.id} className="border-t">
-                        <td className="py-2">{t.projectName}</td>
-                        <td className="py-2">
+                      <tr key={t.id} className="hover:bg-gray-50 transition">
+                        <td className="px-4 py-3 font-medium text-gray-800">{t.projectName}</td>
+                        <td className="px-4 py-3">
                           {Array.isArray(t.assignees) && t.assignees.length > 0 ? (
                             <div className="flex flex-wrap gap-1">
                               {t.assignees.map((person, idx) => (
@@ -156,10 +157,10 @@ export const RequestBoard = () => {
                             <span className="italic text-gray-400">Unassigned</span>
                           )}
                         </td>
-                        <td className="py-2">{t.deadline || "—"}</td>
-                        <td className="py-2">{t.priority}</td>
-                        <td className="py-2">{t.status}</td>
-                        <td className="py-2">
+                        <td className="px-4 py-3">{t.deadline || "—"}</td>
+                        <td className="px-4 py-3">{t.priority}</td>
+                        <td className="px-4 py-3">{t.status}</td>
+                        <td className="px-4 py-3">
                           {t.document ? (
                             <a
                               href={t.document}
