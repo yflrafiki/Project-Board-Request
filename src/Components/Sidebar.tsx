@@ -66,7 +66,7 @@ export const Sidebar = () => {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-4 border-b flex justify-between items-center">
+          <div className="p-4 border-b border-gray-100 flex justify-between items-center">
             <div className="text-blue-600 font-bold text-lg">
               {isExpanded ? "Orcta" : "O"}
             </div>
@@ -80,7 +80,7 @@ export const Sidebar = () => {
 
           {/* User Info */}
           {isExpanded && currentUser && (
-            <div className="px-4 py-2 border-b text-sm text-gray-600">
+            <div className="px-4 py-2 border-b !border-gray-100 text-sm text-gray-600">
               Hello, {currentUser.name}
             </div>
           )}
